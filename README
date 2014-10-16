@@ -7,4 +7,4 @@ Tables:
  - mfid_name(mfid int, house_id int, name text)
  - id_house(house_id int, house_name text)
  - amfi_amc_codes(code int, amc text)
- - <mfid>(date text, nav real, rp real, sp real)
+ - <mfid>(date text, nav real)
