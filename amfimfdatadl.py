@@ -29,7 +29,7 @@ except:
 c = conn.cursor()
 def ifTableExists(table):
   t = (table,)
-  return conn.execute('''select count(*) FROM sqlite_master WHERE type='table' AND name='%s' ''' % t).fetchone()[0]
+  return conn.execute('''select count(*) FROM sqlite_master WHERE type='table' AND name='{0}' '''.format(table)).fetchall()
 
 def execute(cursor, *text):
   try:
@@ -73,9 +73,8 @@ def get_data_from_amfi(url,house_id):
     logger.error("Cannot fetch data from AMFI site for %s , code %d" % name, code)
   return data
 
-def get_historical_data():
+def get_historical_data(start_date = '01-Jan-2010'):
   '''Get historical data till todays date'''
-  start_date = '01-Jan-2010'
   end_date = time.strftime('%d-%b-%Y',time.localtime())
   histdata_base_url = 'http://portal.amfiindia.com/DownloadNAVHistoryReport_Po.aspx?tp=1&frmdt=%s&todt=%s&mf=' % (start_date, end_date)
   amc_codes = c.execute('''SELECT * from amfi_amc_codes''').fetchall()
@@ -105,8 +104,8 @@ def get_historical_data():
           if time.mktime(time.strptime(last_update_date,'%d-%b-%Y')) < time.mktime(time.strptime(date.strip(),'%d-%b-%Y')):
             try:
               conn.execute('''INSERT INTO '{0}' VALUES (?,?)'''.format(mf_id), (date.strip(), mf_nav))
-            except:
-              logger.error('Failed to update table {0} for date {1}'.format(mf_id,date.strip()))
+            except Exception, e:
+              logger.error('Failed to update table {0} for date {1}. The error is {2}'.format(mf_id,date.strip(),str(e)))
             if get_last_update:
                 conn.execute('''UPDATE lastupdate set date = '{0}' where mfid = {1}'''.format(date.strip(), mf_id))
             else:
@@ -116,15 +115,27 @@ def get_historical_data():
           execute(c,'''INSERT INTO mfid_name_map VALUES (?,?,?)''', t)
           execute(c,'''INSERT INTO '{0}' VALUES (?,?)'''.format(mf_id), (date.strip(), mf_nav))
     os.remove('rawdata/'+str(house_id))
+    execute(c,'''INSERT INTO lastupdate VALUES (?,?)''', ('all',end_date))
 
-def update_data():
-  '''Handle the daily updates or updates from last updated time'''
-  pass
-
-if __name__ == "__main__"
+'''
+  def update_data():
+  Handle the daily updates or updates from last updated time
+  1. Get last update date
+     2. Get historical data from last_update_date till today
+  lastupdate = conn.execute("SELECT date from lastupdate where mfid = 'all' ").fetchall()
+  get_historical_data(start_date = lastupdate )
+'''
+  
+if __name__ == "__main__":
   if ifTableExists('init'):
     pass
   else:
     prep_db()
-
-  get_historical_data()
+  lastupdate = conn.execute('''SELECT date from lastupdate where mfid = 'all' ''').fetchall()
+  if lastupdate:
+    lpd = lastupdate[0][0]
+    logger.info('Downloading data from date {0}'.format(lpd))
+    get_historical_data(start_date = lpd )
+  else:
+    logger.info('Downloading data from date 01-Jan-2010')
+    get_historical_data()
