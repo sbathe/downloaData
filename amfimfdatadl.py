@@ -35,7 +35,8 @@ def execute(cursor, *text):
   try:
     cursor.execute(*text)
   except:
-    logger.error("Cannot execute statement {}".format(text))
+    e = sys.exc_info()[0]
+    logger.error("Cannot execute statement {0}. The error was: {1}".format(text, e))
 
 def prep_db():
     logger.info("Preparing / Seeding the db")
@@ -104,8 +105,9 @@ def get_historical_data(start_date = '01-Jan-2010'):
           if time.mktime(time.strptime(last_update_date,'%d-%b-%Y')) < time.mktime(time.strptime(date.strip(),'%d-%b-%Y')):
             try:
               conn.execute('''INSERT INTO '{0}' VALUES (?,?)'''.format(mf_id), (date.strip(), mf_nav))
-            except Exception, e:
-              logger.error('Failed to update table {0} for date {1}. The error is {2}'.format(mf_id,date.strip(),str(e)))
+            except:
+              e = sys.exc_info()[0]
+              logger.error('Failed to update table {0} for date {1}. The error is {2}'.format(mf_id,date.strip(),e))
             if get_last_update:
                 conn.execute('''UPDATE lastupdate set date = '{0}' where mfid = {1}'''.format(date.strip(), mf_id))
             else:
@@ -114,8 +116,8 @@ def get_historical_data(start_date = '01-Jan-2010'):
           execute(c,'''CREATE TABLE '{0}' (date text, nav real)'''.format(mf_id.strip()))
           execute(c,'''INSERT INTO mfid_name_map VALUES (?,?,?)''', t)
           execute(c,'''INSERT INTO '{0}' VALUES (?,?)'''.format(mf_id), (date.strip(), mf_nav))
-    os.remove('rawdata/'+str(house_id))
-    execute(c,'''INSERT INTO lastupdate VALUES (?,?)''', ('all',end_date))
+  os.remove('rawdata/'+str(house_id))
+  execute(c,'''UPDATE lastupdate SET date = '{0}' where mfid = 'all' '''.format(end_date))
 
 '''
   def update_data():
