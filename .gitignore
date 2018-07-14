@@ -2,3 +2,4 @@
 test.db
 *db.old
 mongo-data
+__pycache__
