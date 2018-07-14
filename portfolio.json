@@ -1,0 +1,18 @@
+{
+  "username":"test", 
+  "equity": {
+    "mf":{
+      "scheme_name":"",
+      "transactions":""
+    },
+    "stocks": {
+    }
+  },
+  "debt":{
+    "ppf":{},
+    "epf":{},
+    "mf": {},
+    "fd": {},
+    "bond": {}
+  }
+}

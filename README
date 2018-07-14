@@ -1,10 +1,1 @@
-DB Structure:
-
-DB Name - MutualFundsData
-Tables:
- - init(init_type text, status int, datetime)
-    - init_type => db_created, history_created, last_update
- - mfid_name(mfid int, house_id int, name text)
- - id_house(house_id int, house_name text)
- - amfi_amc_codes(code int, amc text)
- - <mfid>(date text, nav real)
+Something to hack, nothing useful here
