@@ -2,4 +2,5 @@
 test.db
 *db.old
 mongo-data
+amfidata*
 __pycache__
