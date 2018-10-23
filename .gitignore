@@ -4,3 +4,5 @@ test.db
 mongo-data
 amfidata*
 __pycache__
+archive/*csv
+archive/*json

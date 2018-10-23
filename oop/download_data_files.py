@@ -3,7 +3,7 @@ import requests, bs4
 import json, os
 import time, datetime
 
-class amfi:
+class AmfiDownload:
     def __init__(self):
         self.CODES_URL = 'https://www.amfiindia.com/nav-history-download'
         self.NAV_URL_TEMPLATE = 'http://portal.amfiindia.com/DownloadNAVHistoryReport_Po.aspx?tp=1&'
@@ -62,7 +62,7 @@ class amfi:
             lockdata[amc_name] = end_date
             time.sleep(20)
         lockdata['global'] = end_date
-        self.write_file(open('amfidata/lockfile.json','w+'), json.dumps(lockdata))
+        self.write_file(open('amfidata/lockfile.json','w+'), json.dumps(lockdata,sort_keys=True, indent=4))
 
     def init_or_update(self):
         """ Returns startdate to get the data from, depending on when the
