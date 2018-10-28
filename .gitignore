@@ -5,3 +5,6 @@ mongo-data
 amfidata*
 __pycache__
 archive/*
+direct_json/
+json_data/
+oop/meta

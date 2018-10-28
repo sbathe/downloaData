@@ -58,7 +58,7 @@ class AmfiDownload:
             data = self.get_amc_nav_data(amc_code,start_date=start_date,end_date=end_date)
             name = '_'.join(amc_name.split())
             filename = '_'.join([name, today]) + '.csv'
-            self.write_file(open(os.path.join('amfidata',filename),'a+'), data)
+            self.write_file(open(os.path.join('amfidata',filename),'w+'), data)
             lockdata[amc_name] = end_date
             time.sleep(20)
         lockdata['global'] = end_date
