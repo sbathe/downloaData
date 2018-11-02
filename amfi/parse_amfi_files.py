@@ -3,6 +3,7 @@ import requests, bs4
 import json, os, sys
 import time, datetime
 import re
+from amfi import AmfiDownload
 
 class AmfiParse:
    def __init__(self):
@@ -67,16 +68,17 @@ class AmfiParse:
        fh = open(filename,'w+')
        self.write_file(fh,json.dumps(json_data,indent=4))
 
-   def get_jsons_from_csvs(self,in_dir):
-       data = {}
+   def get_json_from_amc_csvs(self,amc,in_dir):
+       filematch = '_'.join(amc.split())
+       amc_data = {}
        for root, dirs, files in os.walk(in_dir):
            for f in files:
-               if f.endswith('.csv'):
+               if not f.find(filematch):
                    d = open(os.path.join(in_dir,f)).read()
                    if not self.nodata(d):
                        pdata = self.process_raw(d)
-                       data = self.parse(pdata,data)
-       return data
+                       amc_data = self.parse(pdata,amc_data)
+       return amc_data
 
    def write_json_data(self,data, out_dir):
        for amc in data.keys():
@@ -89,8 +91,11 @@ class AmfiParse:
                self.write_json(data_file, data_data)
 
    def write_json_from_csvs(self,in_dir,out_dir):
-       data = self.get_jsons_from_csvs(in_dir)
-       self.write_json_data(data, out_dir)
+       amfiobj = AmfiDownload()
+       amc_pairs = amfiobj.get_amc_codes()
+       for amc_name, amc_code in amc_pairs.items():
+           data = self.get_json_from_amc_csvs(amc_name,in_dir)
+           self.write_json_data(data, out_dir)
 
    def write_direct_json_from_cvs(self,in_dir,out_dir):
        if not os.path.exists(out_dir):
