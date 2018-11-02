@@ -29,6 +29,7 @@ class AmfiParse:
        """ This will remove all blank lines from the downloaded file. Returns
        a list of non-blank lines"""
        return [ line for line in raw_string.split('\n') if line.strip() ]
+
    def parse(self,processed_data,data={}):
        """ The goal is:
            - Create a scheme code wise json structure with 2 sections:
@@ -44,7 +45,7 @@ class AmfiParse:
               for p in parts:
                   c.append(p.split('-'))
                   categories = [item.strip(')').strip() for sublist in c for item in sublist]
-           elif re.search(self.AMC,line):
+           elif line.endswith('Mutual Fund'):
               amc = line
               if not amc in data.keys():
                 data[amc] = {}
@@ -52,10 +53,16 @@ class AmfiParse:
                code,name,nav,rp,sp,date = line.split(';')
                if code not in data[amc].keys():
                  data[amc][code] = {}
-                 data[amc][code]["data"] = []
+                 data[amc][code]["data"] = {}
                  data[amc][code]["meta"] = { "name": name, "amc": amc, "type": "open ended", "categories": categories }
-               data[amc][code]["data"].append([date,nav])
+               year = datetime.datetime.strptime(date,'%d-%b-%Y').year
+               if year in data[amc][code]["data"].keys():
+                   data[amc][code]["data"][year].append({"date": date,"nav": nav})
+               else:
+                   data[amc][code]["data"][year] = []
+                   data[amc][code]["data"][year].append({"date": date,"nav": nav})
        return data
+
    def write_json(self, filename, json_data):
        fh = open(filename,'w+')
        self.write_file(fh,json.dumps(json_data,indent=4))
