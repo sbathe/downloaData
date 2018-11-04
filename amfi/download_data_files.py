@@ -12,7 +12,7 @@ class AmfiDownload:
 
     def get_url_data(self,url):
         try:
-            r = requests.get(url)
+            r = requests.get(url,timeout=5)
         except requests.exceptions.RequestException as e:
             print(e)
             return None
