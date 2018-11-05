@@ -7,6 +7,8 @@ from amfi import AmfiDownload
 
 class AmfiParse:
    def __init__(self):
+       # put code to load a config data here. Possibly from a separate
+       # Configurartion class or method
         self.NODATA = re.compile('No data found on the basis of selected parameters for this report')
         self.HEADING = re.compile('Scheme Code;Scheme Name')
         self.OPENENDED = re.compile('Open Ended Scheme')
