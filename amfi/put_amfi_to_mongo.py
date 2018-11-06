@@ -19,16 +19,19 @@ class AmfiMongo:
                continue
            for scheme_code in data[amc_name].keys():
                meta = data[amc_name][scheme_code]['meta']
-               meta['scheme_code'] = scheme_code
                collname = 'c'+scheme_code
                ### get a new method
                if not collname in self.DB.list_collection_names():
                  coll = self.DB.create_collection(collname)
                else:
                  coll = self.DB.get_collection(collname)
+               coll.create_index(['scheme_code','year', 'scheme_name'])
                ### end get a new method
-               coll.update_one({"scheme_code": scheme_code},{"$set": {"meta": meta}}, True)
-               # data is not getting inserted at all
-               for year in data[amc_name][scheme_code]['data'].keys():
-                   key = 'year{0}'.format(year)
-                   coll.update_one({"scheme_code": scheme_code},{"$set":{key: data[amc_name][scheme_code]['data'][year]}},True)
+               #coll.update_one({"scheme_code": scheme_code},{"$set": {"meta": meta}}, True)
+               for yearstr in data[amc_name][scheme_code]['data'].keys():
+                   ydata = data[amc_name][scheme_code]['data'][yearstr]
+                   ydata['scheme_code'] = scheme_code
+                   try:
+                       coll.insert_many([meta, ydata],ordered=False)
+                   except pymongo.errors.BulkWriteError:
+                       pass
