@@ -56,14 +56,14 @@ class AmfiParse:
                code,name,nav,rp,sp,date = line.split(';')
                if code not in data[amc].keys():
                  data[amc][code] = {}
-                 data[amc][code]["data"] = {}
-                 data[amc][code]["meta"] = { "name": name, "amc": amc, "type": "open ended", "categories": categories }
-               year = datetime.datetime.strptime(date,'%d-%b-%Y').year
-               if year in data[amc][code]["data"].keys():
-                   data[amc][code]["data"][year].append({"date": date,"nav": nav})
-               else:
-                   data[amc][code]["data"][year] = []
-                   data[amc][code]["data"][year].append({"date": date,"nav": nav})
+                 data[amc][code]["data"] = []
+                 data[amc][code]["meta"] = { "name": name, "amc": amc, "type": "open ended", "scheme_code": code, "categories": categories }
+               #year = datetime.datetime.strptime(date,'%d-%b-%Y').year
+               #if year in data[amc][code]["data"].keys():
+                   #data[amc][code]["data"][year].append({"date": date,"nav": nav})
+               #else:
+               #    data[amc][code]["data"][year] = []
+               data[amc][code]["data"].append({"date": date,"nav": nav})
        return data
 
    def write_json(self, filename, json_data):
