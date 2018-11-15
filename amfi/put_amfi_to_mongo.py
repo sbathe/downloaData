@@ -33,44 +33,11 @@ class AmfiMongo:
              collname = 'c'+scheme_code
              if not collname in self.DB.list_collection_names():
                  coll = self.DB.create_collection(collname)
-                 for ufield in ['date']:
-                     coll.create_index([(ufield,pymongo.ASCENDING)],unique=True)
-                 #for field in ['scheme_code', 'name']:
-                 #    coll.create_index(field)
-                 #coll.insert_one(scheme_meta)
+                 coll.create_index([('date',pymongo.ASCENDING)],unique=True)
              else:
                  coll = self.DB.get_collection(collname)
-             for element in data[amc_name][scheme_code]['data']:
-                 d = element['date']
-                 element['date'] = datetime.datetime.strptime(d,'%d-%b-%Y')
-                 try:
-                     coll.insert_one(element)
-                 except pymongo.errors.DuplicateKeyError as e:
-                     pass
-                     #print('{0} : {1}'.format(element,e))
-       """
-       for amc_name, amc_code in amc_pairs.items():
-           data = amfiparseobj.get_json_from_amc_csvs(amc_name,in_dir)
-           print(type(data))
-           if not data:
-               continue
-           for scheme_code in data[amc_name].keys():
-               meta = data[amc_name][scheme_code]['meta']
-               data = data[amc_name][scheme_code]['data']
-               collname = 'c'+scheme_code
-               ### get a new method
-               if not collname in self.DB.list_collection_names():
-                 coll = self.DB.create_collection(collname)
-                 for field in ['scheme_code','date', 'name']:
-                   coll.create_index([field],unique=True)
-                 coll.insert_one(meta)
-               else:
-                 coll = self.DB.get_collection(collname)
-               ### end get a new method
-               #coll.update_one({"scheme_code": scheme_code},{"$set": {"meta": meta}}, True)
-               # data is not getting inserted at all
-               try:
-                   coll.insert_many(data,ordered=False)
-               except pymongo.errors.BulkWriteError:
-                   pass
-    """
+             try:
+                 coll.insert_many(scheme_data, ordered=False)
+             except pymongo.errors.BulkWriteError as e:
+                 print('cannot write: {0}'.format(e))
+
