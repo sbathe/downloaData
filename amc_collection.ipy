@@ -1,0 +1,13 @@
+# coding: utf-8
+import json
+amc_pairs = json.load(open('amfidata/amc_codes.json'))
+amcs = [k for k,v in amc_pairs.items()]
+import pymongo
+client = pymongo.MongoClient('mongodb://127.0.0.1:27017/')
+DB = client.amfi
+amcc = DB.amcs
+amcc.create_index([('name', pymongo.TEXT)])
+for e in amcs:
+    amcc.insert_one({'name': e})
+    
+%save amc_collection.py
