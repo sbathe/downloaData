@@ -63,7 +63,7 @@ class AmfiParse:
                    #data[amc][code]["data"][year].append({"date": date,"nav": nav})
                #else:
                #    data[amc][code]["data"][year] = []
-               data[amc][code]["data"].append({"date": datetime.datetime.strptime(date,'%d-%b-%Y'),"nav": nav})
+               data[amc][code]["data"].append({"scheme_code": int(code), "date": datetime.datetime.strptime(date,'%d-%b-%Y'),"nav": nav})
        return data
 
    def write_json(self, filename, json_data):
