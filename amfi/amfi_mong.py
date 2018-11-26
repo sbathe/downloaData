@@ -2,6 +2,7 @@
 from amfi import AmfiDownload
 from amfi import AmfiParse
 import pymongo, datetime, re
+import pandas as pd
 
 class AmfiMongo:
     def __init__(self):
@@ -12,12 +13,18 @@ class AmfiMongo:
             self.mcoll = self.DB.create_collection('meta')
             self.mcoll.create_index([('scheme_code',pymongo.ASCENDING)],unique=True)
             self.mcoll.create_index([('name', pymongo.TEXT), ('amc',pymongo.TEXT)])
+        else:
+            self.mcoll = self.DB.get_collection('meta')
         if not 'data' in self.DB.list_collection_names():
             self.dcoll = self.DB.create_collection('data')
             self.dcoll.create_index([('scheme_code',pymongo.ASCENDING), ('date',pymongo.ASCENDING)],unique=True)
+        else:
+            self.dcoll = self.DB.get_collection('data')
         if not 'amcs' in self.DB.list_collection_names():
            self.amccoll = self.DB.create_collection('amcs')
            self.amccoll.create_index([('name', pymongo.TEXT)])
+        else:
+           self.amccoll = self.DB.get_collection('amcs')
 
     def write_amc_pairs(self):
         amfidownloadobj = AmfiDownload()
@@ -25,8 +32,6 @@ class AmfiMongo:
         amcs = [k for k,v in amc_pairs.items()]
         for e in amcs:
             self.amccoll.insert_one({'name': e})
-
-
 
     def write_jsons_to_docments(self, in_dir):
        amfidownloadobj = AmfiDownload()
@@ -59,11 +64,11 @@ class AmfiMongo:
                      print('cannot write: {0}'.format(e))
 
     def find_min_date_for_scheme(self, scheme_code):
-        r = self.dcoll.find_one({'scheme_code': scheme_code},sort=[('date', 1)])
+        r = self.dcoll.find_one({'scheme_code': int(scheme_code)},sort=[('date', 1)])
         return r['date']
 
     def find_max_date_for_scheme(self, scheme_code):
-        r = self.dcoll.find_one({'scheme_code': scheme_code},sort=[('date', -1)])
+        r = self.dcoll.find_one({'scheme_code': int(scheme_code)},sort=[('date', -1)])
         return r['date']
 
     def get_scheme_code_from_name(self, name):
@@ -82,12 +87,17 @@ class AmfiMongo:
         return rs
 
     def get_scheme_navs_between_dates(self,scheme_code,start_date=None,end_date=None):
+        """ Takes in  scheme_code, start_data (optional) and end_date (optional) and put out
+        a dataframe with date, nav pairs """
         if not start_date:
             start_date = self.find_min_date_for_scheme(scheme_code)
         if not end_date:
             end_date = self.find_max_date_for_scheme(scheme_code)
-        ds = dict()
-        ds['data'] = list()
-        for e in self.dcoll.find({'$and': [{'date': { '$gte': start_date}}, {'date': {'$lte': end_date}}, {'scheme_code':scheme_code}]},{'_id': False, 'date': True, 'nav': True}):
-            ds['data'].append(e)
-       return ds
+            projection = {'_id': False, 'scheme_code': False}
+        raw_data = list(self.dcoll.find({'$and': [{'date': { '$gte': start_date}}, {'date': {'$lte': end_date}}, {'scheme_code':int(scheme_code)}]},projection = projection))
+        return pd.DataFrame(raw_data)
+
+    def get_fund_names_and_codes(self):
+        projection = {'_id': False; 'amc': False, 'type': False, 'categories': False}
+        raw_data = list(self.mcoll.find({}, projection = projection))
+        return pd.DataFrame(raw_data)
