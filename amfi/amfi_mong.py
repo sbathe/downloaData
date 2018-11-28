@@ -98,6 +98,7 @@ class AmfiMongo:
         return pd.DataFrame(raw_data)
 
     def get_fund_names_and_codes(self):
+        """Returns name:scheme_code for all available funds"""
         projection = {'_id': False; 'amc': False, 'type': False, 'categories': False}
         raw_data = list(self.mcoll.find({}, projection = projection))
         return pd.DataFrame(raw_data)
