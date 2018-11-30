@@ -79,14 +79,15 @@ class AmfiMongo:
         r = self.mcoll.find({'scheme_code': str(scheme_code)})
         return r
 
-    def get_fundnames_from_text(self, text):
-        rs = dict()
-        rs['names'] = list()
+    def get_fundnames_from_text(self, text, csv=True):
+        rs = list()
         for r in self.mcoll.find({'$text': {'$search': 'value'}}):
             rs.append(r['name'])
+        if csv:
+            return pd.DataFrame(rs).to_csv()
         return rs
 
-    def get_scheme_navs_between_dates(self,scheme_code,start_date=None,end_date=None):
+    def get_scheme_navs_between_dates(self,scheme_code,start_date=None,end_date=None,csv=True):
         """ Takes in  scheme_code, start_data (optional) and end_date (optional) and put out
         a dataframe with date, nav pairs """
         if not start_date:
@@ -95,10 +96,15 @@ class AmfiMongo:
             end_date = self.find_max_date_for_scheme(scheme_code)
             projection = {'_id': False, 'scheme_code': False}
         raw_data = list(self.dcoll.find({'$and': [{'date': { '$gte': start_date}}, {'date': {'$lte': end_date}}, {'scheme_code':int(scheme_code)}]},projection = projection))
-        return pd.DataFrame(raw_data)
+        if csv:
+            return pd.DataFrame(raw_data).to_csv()
+        else:
+            return pd.DataFrame(raw_data)
 
-    def get_fund_names_and_codes(self):
+    def get_fund_names_and_codes(self,csv=True):
         """Returns name:scheme_code for all available funds"""
-        projection = {'_id': False; 'amc': False, 'type': False, 'categories': False}
+        projection = {'_id': False, 'amc': False, 'type': False, 'categories': False}
         raw_data = list(self.mcoll.find({}, projection = projection))
+        if csv:
+            return pd.DataFrame(raw_data).to_csv()
         return pd.DataFrame(raw_data)
