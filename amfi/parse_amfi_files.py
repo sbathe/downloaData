@@ -53,7 +53,7 @@ class AmfiParse:
               if not amc in data.keys():
                 data[amc] = {}
            elif len(line.split(';')) > 1:
-               code,name,nav,rp,sp,date = line.split(';')
+               code,name,ign1,ign2,nav,rp,sp,date = line.split(';')
                if code not in data[amc].keys():
                  data[amc][code] = {}
                  data[amc][code]["data"] = []
@@ -63,7 +63,8 @@ class AmfiParse:
                    #data[amc][code]["data"][year].append({"date": date,"nav": nav})
                #else:
                #    data[amc][code]["data"][year] = []
-               data[amc][code]["data"].append({"scheme_code": int(code), "date": datetime.datetime.strptime(date,'%d-%b-%Y'),"nav": nav})
+               #data[amc][code]["data"].append({"scheme_code": int(code), "date": str(datetime.datetime.strptime(date,'%d-%b-%Y')),"nav": nav})
+               data[amc][code]["data"].append({"scheme_code": int(code), "date": date,"nav": nav})
        return data
 
    def write_json(self, filename, json_data):
@@ -102,8 +103,8 @@ class AmfiParse:
    def write_direct_json_from_cvs(self,in_dir,out_dir):
        if not os.path.exists(out_dir):
            os.mkdir(out_dir)
-       data = self.get_jsons_from_csvs(in_dir)
        for amc in data.keys():
+           data = self.get_json_from_amc_csvs(amc,in_dir)
            for scheme in data[amc].keys():
                meta_file = os.path.join(out_dir,scheme + '_meta.json')
                meta_data = data[amc][scheme]['meta']

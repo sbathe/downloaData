@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import requests, bs4
-import json, os
+import json, os, sys
 import time, datetime
 
 class AmfiDownload:
@@ -19,7 +19,7 @@ class AmfiDownload:
         return r.text
 
     def get_amc_codes(self):
-        url = 'https://www.amfiindia.com/nav-history-download'
+        url = self.CODES_URL
         r = self.get_url_data(url)
         if r:
           soup = bs4.BeautifulSoup(r, 'html.parser')
@@ -67,8 +67,6 @@ class AmfiDownload:
     def init_or_update(self):
         """ Returns startdate to get the data from, depending on when the
         update was perfomed last"""
-        data_init = False
-        data_update = False
         if os.path.isfile('amfidata/lockfile.json'):
             d = json.load(open('amfidata/lockfile.json'))
             return datetime.datetime.strftime(datetime.datetime.strptime(d['global'],'%d-%b-%Y') + datetime.timedelta(days=1), '%d-%b-%Y')
@@ -76,4 +74,7 @@ class AmfiDownload:
             return self.START_DATE
     def download_data(self):
         start_date = self.init_or_update()
+        if start_date == datetime.datetime.today():
+            print('No need to get data, already updated locally')
+            sys.exit(0)
         self.write_amc_files(start_date=start_date)
