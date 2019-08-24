@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+import pymongo
+import re
+import pandas as pd
+
 from amfi import AmfiDownload
 from amfi import AmfiParse
-import pymongo, datetime, re
-import pandas as pd
 
 class AmfiMongo:
     def __init__(self):
@@ -21,10 +23,22 @@ class AmfiMongo:
         else:
             self.dcoll = self.DB.get_collection('data')
         if not 'amcs' in self.DB.list_collection_names():
-           self.amccoll = self.DB.create_collection('amcs')
-           self.amccoll.create_index([('name', pymongo.TEXT)])
+            self.amccoll = self.DB.create_collection('amcs')
+            self.amccoll.create_index([('name', pymongo.TEXT)])
         else:
-           self.amccoll = self.DB.get_collection('amcs')
+            self.amccoll = self.DB.get_collection('amcs')
+        if not 'last_updated' in self.DB.list_collection_names():
+            self.lcoll = self.DB.create_collection('last_updated')
+        else:
+            self.lcoll = self.DB.get_collection('last_updated')
+
+    def write_last_updated(self, json_data):
+        for name, date in json_data.items():
+            try:
+                self.lcoll.replace_one({'name': name}, {'name': name, 'date': date}, upsert=True)
+            except Exception as e:
+                print('Cannot replace: {0}'.format(e))
+        
 
     def write_amc_pairs(self):
         amfidownloadobj = AmfiDownload()
@@ -34,34 +48,34 @@ class AmfiMongo:
             self.amccoll.insert_one({'name': e})
 
     def write_jsons_to_docments(self, in_dir):
-       amfidownloadobj = AmfiDownload()
-       amfiparseobj = AmfiParse()
-       amc_pairs = amfidownloadobj.get_amc_codes()
-       mcoll = self.DB.get_collection('meta')
-       dcoll = self.DB.get_collection('data')
-       for amc_name, amc_code in amc_pairs.items():
-         data = amfiparseobj.get_json_from_amc_csvs(amc_name,in_dir)
-         if not data:
-             continue
-         for scheme_code in data[amc_name].keys():
-             #scheme_meta = data[amc_name][scheme_code]['meta']
-             if re.search('direct',data[amc_name][scheme_code]['meta']['name'],re.IGNORECASE):
-                 try:
-                     mcoll.insert_one(data[amc_name][scheme_code]['meta'])
-                 except pymongo.errors.DuplicateKeyError as e:
-                     pass
-                     #print('{0} : {1}'.format(scheme_code,e))
-                 scheme_data = data[amc_name][scheme_code]['data']
+        amfidownloadobj = AmfiDownload()
+        amfiparseobj = AmfiParse()
+        amc_pairs = amfidownloadobj.get_amc_codes()
+        mcoll = self.DB.get_collection('meta')
+        dcoll = self.DB.get_collection('data')
+        for amc_name, _unused in amc_pairs.items():
+            data = amfiparseobj.get_json_from_amc_csvs(amc_name,in_dir)
+            if not data:
+                continue
+            for scheme_code in data[amc_name].keys():
+                #scheme_meta = data[amc_name][scheme_code]['meta']
+                if re.search('direct',data[amc_name][scheme_code]['meta']['name'],re.IGNORECASE):
+                    try:
+                        mcoll.insert_one(data[amc_name][scheme_code]['meta'])
+                    except pymongo.errors.DuplicateKeyError as e:
+                        pass
+                    #print('{0} : {1}'.format(scheme_code,e))
+                scheme_data = data[amc_name][scheme_code]['data']
                  #collname = 'c'+scheme_code
                  #if not collname in self.DB.list_collection_names():
                  #    coll = self.DB.create_collection(collname)
                  #    coll.create_index([('date',pymongo.ASCENDING)],unique=True)
                  #else:
                  #    coll = self.DB.get_collection(collname)
-                 try:
-                     dcoll.insert_many(scheme_data, ordered=False)
-                 except pymongo.errors.BulkWriteError as e:
-                     print('cannot write: {0}'.format(e))
+                try:
+                    dcoll.insert_many(scheme_data, ordered=False)
+                except pymongo.errors.BulkWriteError as e:
+                    print('cannot write: {0}'.format(e))
 
     def find_min_date_for_scheme(self, scheme_code):
         r = self.dcoll.find_one({'scheme_code': int(scheme_code)},sort=[('date', 1)])
@@ -81,7 +95,7 @@ class AmfiMongo:
 
     def get_fundnames_from_text(self, text, csv=True):
         rs = list()
-        for r in self.mcoll.find({'$text': {'$search': 'value'}}):
+        for r in self.mcoll.find({'$text': {'$search': text}}):
             rs.append(r['name'])
         if csv:
             return pd.DataFrame(rs).to_csv()

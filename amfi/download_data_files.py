@@ -2,6 +2,7 @@
 import requests, bs4
 import json, os, sys
 import time, datetime
+from amfi import AmfiMongo
 
 class AmfiDownload:
     def __init__(self):
@@ -63,6 +64,10 @@ class AmfiDownload:
             time.sleep(20)
         lockdata['global'] = end_date
         self.write_file(open('amfidata/lockfile.json','w+'), json.dumps(lockdata,sort_keys=True, indent=4))
+        # also write this data to mongo
+        m = AmfiMongo()
+        m.write_last_updated(lockdata)
+
 
     def init_or_update(self):
         """ Returns startdate to get the data from, depending on when the
