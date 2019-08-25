@@ -74,15 +74,21 @@ class AmfiDownload:
         update was perfomed last"""
         if os.path.isfile('amfidata/lockfile.json'):
             d = json.load(open('amfidata/lockfile.json'))
-            return datetime.datetime.strftime(datetime.datetime.strptime(d['global'],'%d-%b-%Y') + datetime.timedelta(days=1), '%d-%b-%Y')
+            s_date = datetime.datetime.strftime(datetime.datetime.strptime(d['global'],'%d-%b-%Y') + datetime.timedelta(days=1), '%d-%b-%Y')
         else:
             m = AmfiMongo()
-            return m.get_last_updated('global')
-        return self.START_DATE
+            try:
+                r = m.get_last_updated('global')
+                s_date = datetime.datetime.strftime(datetime.datetime.strptime(r['date'],'%d-%b-%Y') + datetime.timedelta(days=1), '%d-%b-%Y')
+            except:
+                s_date = self.START_DATE
+        return s_date
         
     def download_data(self):
         start_date = self.init_or_update()
-        if start_date == datetime.datetime.today():
-            print('No need to get data, already updated locally')
-            sys.exit(0)
+        today = datetime.datetime.today()
+        if datetime.datetime.strptime(start_date,'%d-%b-%Y').weekday() >= 5:
+            if (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days <= 1:
+                print('No need to get data, already updated locally')
+                sys.exit(0)
         self.write_amc_files(start_date=start_date)
