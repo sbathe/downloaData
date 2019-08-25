@@ -1,9 +1,9 @@
 __all__ = ("get_git_version")
 from subprocess import Popen, PIPE
 
-def call_git_describe(abbrev):
+def call_git_describe():
     try:
-        p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
+        p = Popen(['git', 'rev-parse', '--short', 'HEAD'],
                   stdout=PIPE, stderr=PIPE)
         p.stderr.close()
         line = p.stdout.readlines()[0]
@@ -44,14 +44,14 @@ def write_release_version(version):
     f.write("%s\n" % version)
     f.close()
 
-def get_git_version(abbrev=7):
+def get_git_version():
     # Read in the version that's currently in RELEASE-VERSION.
 
     release_version = read_release_version()
 
     # First try to get the current version using “git describe”.
 
-    version = call_git_describe(abbrev)
+    version = call_git_describe()
     if is_dirty():
         version += "-dirty"
 
