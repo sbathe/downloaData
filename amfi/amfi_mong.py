@@ -85,6 +85,10 @@ class AmfiMongo:
         r = self.dcoll.find_one({'scheme_code': int(scheme_code)},sort=[('date', -1)])
         return r['date']
 
+    def get_last_updated(self, scheme):
+        r = self.lcoll.find({'name': scheme})
+        return r['date']
+
     def get_scheme_code_from_name(self, name):
         r = self.mcoll.find({'name': name})
         return r['scheme_code']

@@ -76,7 +76,10 @@ class AmfiDownload:
             d = json.load(open('amfidata/lockfile.json'))
             return datetime.datetime.strftime(datetime.datetime.strptime(d['global'],'%d-%b-%Y') + datetime.timedelta(days=1), '%d-%b-%Y')
         else:
-            return self.START_DATE
+            m = AmfiMongo()
+            return m.get_last_updated('global')
+        return self.START_DATE
+        
     def download_data(self):
         start_date = self.init_or_update()
         if start_date == datetime.datetime.today():
