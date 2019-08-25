@@ -1,3 +1,5 @@
+RELEASE-VERSION
+.vscode
 *~
 *.pyc
 test.db
