@@ -13,7 +13,7 @@ class AmfiDownload:
 
     def get_url_data(self,url):
         try:
-            r = requests.get(url,timeout=5)
+            r = requests.get(url,timeout=15)
         except requests.exceptions.RequestException as e:
             print(e)
             return None
@@ -59,11 +59,11 @@ class AmfiDownload:
             data = self.get_amc_nav_data(amc_code,start_date=start_date,end_date=end_date)
             name = '_'.join(amc_name.split())
             filename = '_'.join([name, today]) + '.csv'
-            self.write_file(open(os.path.join('amfidata',filename),'w+'), data)
+            self.write_file(open(os.path.join('/downloaData/amfidata',filename),'w+'), data)
             lockdata[amc_name] = end_date
             time.sleep(20)
         lockdata['global'] = end_date
-        self.write_file(open('amfidata/lockfile.json','w+'), json.dumps(lockdata,sort_keys=True, indent=4))
+        self.write_file(open('/downloaData/amfidata/lockfile.json','w+'), json.dumps(lockdata,sort_keys=True, indent=4))
         # also write this data to mongo
         #m = AmfiMongo()
         #m.write_last_updated(lockdata)
@@ -72,8 +72,8 @@ class AmfiDownload:
     def init_or_update(self):
         """ Returns startdate to get the data from, depending on when the
         update was perfomed last"""
-        if os.path.isfile('amfidata/lockfile.json'):
-            d = json.load(open('amfidata/lockfile.json'))
+        if os.path.isfile('/downloaData/amfidata/lockfile.json'):
+            d = json.load(open('/downloaData/amfidata/lockfile.json'))
             s_date = datetime.datetime.strftime(datetime.datetime.strptime(d['global'],'%d-%b-%Y') + datetime.timedelta(days=1), '%d-%b-%Y')
         else:
             #m = AmfiMongo()

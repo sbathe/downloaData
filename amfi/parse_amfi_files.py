@@ -53,7 +53,7 @@ class AmfiParse:
               if not amc in data.keys():
                 data[amc] = {}
            elif len(line.split(';')) > 1:
-               code,name,ign1,ign2,nav,rp,sp,date = line.split(';')
+               code,name,_ign1,_ign2,nav,_rp,_sp,date = line.split(';')
                if code not in data[amc].keys():
                  data[amc][code] = {}
                  data[amc][code]["data"] = []

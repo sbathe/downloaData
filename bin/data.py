@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import os
 import amfi
 
@@ -12,7 +12,7 @@ k.write_json_from_csvs('/downloaData/amfidata/','/downloaData/json_data')
 
 # move data to mongo
 m = amfi.AmfiMongo()
-m.write_jsons_to_docments('amfidata')
+m.write_jsons_to_docments('/downloaData/amfidata')
 
 # cleanup old csvs, we do not need to keep them around
 for f in [ f for f in os.listdir('/downloaData/amfidata/') if f.endswith(".csv") ]:
