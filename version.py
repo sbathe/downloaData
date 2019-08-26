@@ -1,13 +1,10 @@
 __all__ = ("get_git_version")
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_output
 
 def call_git_describe():
     try:
-        p = Popen(['git', 'rev-parse', '--short', 'HEAD'],
-                  stdout=PIPE, stderr=PIPE)
-        p.stderr.close()
-        line = p.stdout.readlines()[0]
-        return line.strip()
+        line = check_output(['git', 'rev-parse', '--short', 'HEAD'])
+        return line.strip().decode('utf-8')
 
     except:
         return None
@@ -41,7 +38,7 @@ def read_release_version():
 
 def write_release_version(version):
     f = open("RELEASE-VERSION", "w")
-    f.write("%s\n" % version)
+    f.write("%s" % version)
     f.close()
 
 def get_git_version():
