@@ -38,7 +38,7 @@ class AmfiMongo:
                 self.lcoll.replace_one({'name': name}, {'name': name, 'date': date}, upsert=True)
             except Exception as e:
                 print('Cannot replace: {0}'.format(e))
-        
+
 
     def write_amc_pairs(self):
         amfidownloadobj = AmfiDownload()
