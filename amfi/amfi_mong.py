@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import pymongo
-import re
+import re, os
 import pandas as pd
 
 from amfi import AmfiDownload
@@ -9,7 +9,12 @@ from amfi import AmfiParse
 class AmfiMongo:
     def __init__(self):
         # pull config data here
-        client = pymongo.MongoClient('mongodb://127.0.0.1:27017/')
+        #client = pymongo.MongoClient('mongodb://127.0.0.1:27017/')
+        mongouser=os.environ['MONGOUSER']
+        mongopass = os.environ['MONGOPASS']
+        mongourl = os.environ['MONGOURL']
+        client = pymongo.MongoClient("mongodb+srv://{0}:{1}@{2}".format(mongouser,mongopass,mongourl))
+
         self.DB = client.amfi
         if not 'meta' in self.DB.list_collection_names():
             self.mcoll = self.DB.create_collection('meta')

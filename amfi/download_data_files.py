@@ -92,4 +92,7 @@ class AmfiDownload:
             if (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days <= 1:
                 print('No need to get data, already updated locally')
                 sys.exit(0)
+        elif (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days == 0:
+                print('No need to get data, already updated locally')
+                sys.exit(0)
         self.write_amc_files(start_date=start_date)
