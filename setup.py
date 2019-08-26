@@ -1,11 +1,13 @@
 import setuptools
+major_version='0.1.0'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name='amfi',
-    version='0.1.0',
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     url='https://github.com/sbathe/downloadData',
     license='GPLv3',
     author='Saurabh Bathe',

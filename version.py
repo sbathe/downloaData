@@ -1,3 +1,5 @@
+# This is no longer used. I have now used setuptools_scm
+
 __all__ = ("get_git_version")
 from subprocess import Popen, PIPE, check_output
 
