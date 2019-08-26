@@ -1,4 +1,6 @@
 RELEASE-VERSION
+src
+.eggs
 .vscode
 *~
 *.pyc
