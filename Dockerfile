@@ -6,17 +6,24 @@ RUN addgroup --gid 1000 sb && \
 RUN mkdir -p /home/sb && chown sb:sb -R /home/sb
 ADD src /downloadData/
 ADD .git /downloadData/.git/
-RUN mkdir -p /downloadData/{amfidata,json_data} && chown sb:sb -R /downloadData
-USER sb
-RUN cd /downloadData && pwd && pip install --upgrade pip --user && export PATH=/home/sb/.local/bin:$PATH \
+RUN mkdir -p /downloaData/{amfidata,jsondata}
+#RUN cd /downloadData && pwd && pip install --upgrade pip --user && export PATH=/home/sb/.local/bin:$PATH \
+#    && export PYTHONPATH=/home/sb/.local/lib/python3.7/site-packages:$PYTHONPATH \
+#    && pip install -r amfi/build-requires.txt --user \
+#    && pip install -r amfi/requirements.txt --user \ 
+#    && python -V && pwd && ls -la && python setup.py install -v --user
+#VOLUME ["/downloadData/amfidata", "/downloadData/jsonData"]
+RUN cd /downloadData && pwd && pip install --upgrade pip && export PATH=/home/sb/.local/bin:$PATH \
     && export PYTHONPATH=/home/sb/.local/lib/python3.7/site-packages:$PYTHONPATH \
-    && pip install -r amfi/build-requires.txt --user \
-    && pip install -r amfi/requirements.txt --user \ 
-    && python -V && python setup.py install -v --user
-#VOLUME ["/downloadData/amfidata", "/downloadData/json_data"]
+    && pip install -r amfi/build-requires.txt \
+    && pip install -r amfi/requirements.txt \ 
+    && python -V && pwd && ls -la && python setup.py install -v
+RUN chown sb:sb -R /downloaData
 COPY bin/data.py /bin
+USER sb
 ENV MONGOURL localhost:12707
 ENV MONGOPASS aPass
 ENV MONGOUSER aUser
 
 ENTRYPOINT ["/usr/bin/env", "python", "/bin/data.py"]
+#ENTRYPOINT ["/bin/bash"]

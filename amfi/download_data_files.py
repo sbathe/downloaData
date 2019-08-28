@@ -44,6 +44,7 @@ class AmfiDownload:
         if end_date is None:
             end_date = self.END_DATE
         url = self.NAV_URL_TEMPLATE + 'frmdt=' + start_date + '&todt=' + end_date + '&mf=' + amc
+        print("calling URL: {0}".format(url))
         data = self.get_url_data(url)
         return data
 
@@ -56,10 +57,15 @@ class AmfiDownload:
         lockdata = {}
         today = datetime.datetime.strftime(datetime.datetime.strptime(end_date, '%d-%b-%Y'), '%s')
         for amc_name, amc_code in amc_pairs.items():
+            print("Getting data for amc_code: {0}".format(amc_code))
             data = self.get_amc_nav_data(amc_code,start_date=start_date,end_date=end_date)
             name = '_'.join(amc_name.split())
             filename = '_'.join([name, today]) + '.csv'
-            self.write_file(open(os.path.join('/downloaData/amfidata',filename),'w+'), data)
+            try:
+                outf = open(os.path.join('/downloaData/amfidata',filename),'w+')
+            except e:
+                print("Cannot create file: {0}".format(e))
+            self.write_file(outf, data)
             lockdata[amc_name] = end_date
             time.sleep(20)
         lockdata['global'] = end_date

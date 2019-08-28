@@ -10,7 +10,8 @@ mongo-data
 amfidata*
 __pycache__
 direct_json/
-json_data/
+*json-data*
+*jsondata*
 oop/meta
 build/
 dist/

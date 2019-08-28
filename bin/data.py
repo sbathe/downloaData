@@ -8,7 +8,7 @@ do.download_data()
 
 # Parse and write jsons
 k = amfi.AmfiParse()
-k.write_json_from_csvs('/downloaData/amfidata/','/downloaData/json_data')
+k.write_json_from_csvs('/downloaData/amfidata/','/downloaData/jsondata')
 
 # move data to mongo
 m = amfi.AmfiMongo()
