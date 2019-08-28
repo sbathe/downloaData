@@ -11,6 +11,26 @@ spec:
       containers:
       - name: datadownload-job
         image: datadownload
+        resources:
+          limits:
+            memory: 512M
+            cpu: 1000m
+        env:
+        - name: MONGOURL
+          valueFrom:
+            secretKeyRef:
+              name: mongo
+              key: MONGOURL
+        - name: MONGOPASS
+          valueFrom:
+            secretKeyRef:
+              name: mongo
+              key: MONGOPASS
+        - name: MONGOUSER
+          valueFrom:
+            secretKeyRef:
+              name: mongo
+              key: MONGOUSER
         imagePullPolicy: Never
         volumeMounts:
         - mountPath: /downloaData/amfidata
@@ -28,4 +48,3 @@ spec:
       - name: jsondata
         hostPath:
           path: /downloaData/jsondata
-

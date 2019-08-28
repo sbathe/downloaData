@@ -2,9 +2,9 @@
 import requests, bs4
 import json, os, sys
 import time, datetime
-from setupLogger import logger
+import logging
 #from amfi import AmfiMongo
-
+logger = logging.getLogger(__name__)
 class AmfiDownload:
     def __init__(self):
         self.CODES_URL = 'https://www.amfiindia.com/nav-history-download'
@@ -59,7 +59,7 @@ class AmfiDownload:
         lockdata = {}
         today = datetime.datetime.strftime(datetime.datetime.strptime(end_date, '%d-%b-%Y'), '%s')
         for amc_name, amc_code in amc_pairs.items():
-            logger.INFO("Getting data for amc_code: {0}".format(amc_code))
+            logger.info("Getting data for amc_code: {0}".format(amc_code))
             data = self.get_amc_nav_data(amc_code,start_date=start_date,end_date=end_date)
             name = '_'.join(amc_name.split())
             filename = '_'.join([name, today]) + '.csv'
@@ -98,9 +98,9 @@ class AmfiDownload:
         today = datetime.datetime.today()
         if datetime.datetime.strptime(start_date,'%d-%b-%Y').weekday() >= 5:
             if (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days <= 1:
-                logger.INFO('No need to get data, already updated locally')
+                logger.info('No need to get data, already updated locally')
                 sys.exit(0)
         elif (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days == 0:
-                logger.INFO('No need to get data, already updated locally')
+                logger.info('No need to get data, already updated locally')
                 sys.exit(0)
         self.write_amc_files(start_date=start_date)
