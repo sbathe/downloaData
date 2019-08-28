@@ -2,6 +2,7 @@
 import requests, bs4
 import json, os, sys
 import time, datetime
+from setupLogger import logger
 #from amfi import AmfiMongo
 
 class AmfiDownload:
@@ -15,7 +16,8 @@ class AmfiDownload:
         try:
             r = requests.get(url,timeout=15)
         except requests.exceptions.RequestException as e:
-            print(e)
+            logger.debug('Cannot complete request to {0}. The error was:'.format(url))
+            logger.debug(e)
             return None
         return r.text
 
@@ -36,7 +38,7 @@ class AmfiDownload:
             fh.write(data)
             fh.close()
         except:
-            print("Unexpected error:{0}".format(sys.exc_info()[0]))
+            logger.debug("Unexpected error:{0}".format(sys.exc_info()[0]))
 
     def get_amc_nav_data(self,amc,start_date=None,end_date=None):
         if start_date is None:
@@ -44,7 +46,7 @@ class AmfiDownload:
         if end_date is None:
             end_date = self.END_DATE
         url = self.NAV_URL_TEMPLATE + 'frmdt=' + start_date + '&todt=' + end_date + '&mf=' + amc
-        print("calling URL: {0}".format(url))
+        logger.debug("calling URL: {0}".format(url))
         data = self.get_url_data(url)
         return data
 
@@ -57,14 +59,14 @@ class AmfiDownload:
         lockdata = {}
         today = datetime.datetime.strftime(datetime.datetime.strptime(end_date, '%d-%b-%Y'), '%s')
         for amc_name, amc_code in amc_pairs.items():
-            print("Getting data for amc_code: {0}".format(amc_code))
+            logger.INFO("Getting data for amc_code: {0}".format(amc_code))
             data = self.get_amc_nav_data(amc_code,start_date=start_date,end_date=end_date)
             name = '_'.join(amc_name.split())
             filename = '_'.join([name, today]) + '.csv'
             try:
                 outf = open(os.path.join('/downloaData/amfidata',filename),'w+')
-            except e:
-                print("Cannot create file: {0}".format(e))
+            except Exception as e:
+                logger.error("Cannot create file: {0}".format(e))
             self.write_file(outf, data)
             lockdata[amc_name] = end_date
             time.sleep(20)
@@ -96,9 +98,9 @@ class AmfiDownload:
         today = datetime.datetime.today()
         if datetime.datetime.strptime(start_date,'%d-%b-%Y').weekday() >= 5:
             if (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days <= 1:
-                print('No need to get data, already updated locally')
+                logger.INFO('No need to get data, already updated locally')
                 sys.exit(0)
         elif (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days == 0:
-                print('No need to get data, already updated locally')
+                logger.INFO('No need to get data, already updated locally')
                 sys.exit(0)
         self.write_amc_files(start_date=start_date)
