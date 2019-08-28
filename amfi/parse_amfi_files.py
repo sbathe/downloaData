@@ -4,6 +4,8 @@ import json, os, sys
 import time, datetime
 import re
 from amfi import AmfiDownload
+import logging
+logger = logging.getLogger(__name__)
 
 class AmfiParse:
     def __init__(self):
@@ -26,7 +28,7 @@ class AmfiParse:
             fh.write(data)
             fh.close()
         except:
-            print("Unexpected error:{0}".format(sys.exc_info()[0]))
+            logger.error("Unexpected error:{0}".format(sys.exc_info()[0]))
 
     def process_raw(self,raw_string):
         """ This will remove all blank lines from the downloaded file. Returns
