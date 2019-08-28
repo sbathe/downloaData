@@ -96,11 +96,12 @@ class AmfiDownload:
     def download_data(self):
         start_date = self.init_or_update()
         today = datetime.datetime.today()
+        logger.debug('start_date: {0}; today: {1}; delta days: {2}'.format(start_date,today,(today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days))
         if datetime.datetime.strptime(start_date,'%d-%b-%Y').weekday() >= 5:
             if (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days <= 1:
                 logger.info('No need to get data, already updated locally')
                 sys.exit(0)
-        elif (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days == 0:
+        elif (today - datetime.datetime.strptime(start_date,'%d-%b-%Y')).days <= 0:
                 logger.info('No need to get data, already updated locally')
                 sys.exit(0)
         self.write_amc_files(start_date=start_date)

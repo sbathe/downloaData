@@ -6,6 +6,10 @@ import pandas as pd
 from amfi import AmfiDownload
 from amfi import AmfiParse
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 class AmfiMongo:
     def __init__(self):
         # pull config data here
@@ -42,7 +46,7 @@ class AmfiMongo:
             try:
                 self.lcoll.replace_one({'name': name}, {'name': name, 'date': date}, upsert=True)
             except Exception as e:
-                print('Cannot replace: {0}'.format(e))
+                logger.info('Cannot replace: {0}'.format(e))
 
 
     def write_amc_pairs(self):
@@ -68,8 +72,8 @@ class AmfiMongo:
                     try:
                         mcoll.insert_one(data[amc_name][scheme_code]['meta'])
                     except pymongo.errors.DuplicateKeyError as e:
+                        logger.debug('{0} : {1}'.format(scheme_code,e))
                         pass
-                    #print('{0} : {1}'.format(scheme_code,e))
                 scheme_data = data[amc_name][scheme_code]['data']
                  #collname = 'c'+scheme_code
                  #if not collname in self.DB.list_collection_names():
@@ -80,7 +84,7 @@ class AmfiMongo:
                 try:
                     dcoll.insert_many(scheme_data, ordered=False)
                 except pymongo.errors.BulkWriteError as e:
-                    print('cannot write: {0}'.format(e))
+                    logger.info('cannot write: {0}'.format(e))
 
     def find_min_date_for_scheme(self, scheme_code):
         r = self.dcoll.find_one({'scheme_code': int(scheme_code)},sort=[('date', 1)])
