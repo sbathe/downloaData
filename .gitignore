@@ -17,4 +17,4 @@ build/
 dist/
 *pyc
 *egg-info
-mongo_env
+mongo_env*
