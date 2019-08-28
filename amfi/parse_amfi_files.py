@@ -70,13 +70,17 @@ class AmfiParse:
        return data
 
     def write_json(self, filename, json_data):
-       fh = open(filename,'w+')
-       self.write_file(fh,json.dumps(json_data,indent=4))
+        try:
+            fh = open(filename,'w+')
+        except Exception as e:
+            logger.exception(e)
+            sys.exit(1)
+        self.write_file(fh,json.dumps(json_data,indent=4))
 
     def get_json_from_amc_csvs(self,amc,in_dir):
        filematch = '_'.join(amc.split())
        amc_data = {}
-       for root, dirs, files in os.walk(in_dir):
+       for _root, _dirs, files in os.walk(in_dir):
            for f in files:
                if not f.find(filematch):
                    d = open(os.path.join(in_dir,f)).read()
@@ -98,7 +102,7 @@ class AmfiParse:
     def write_json_from_csvs(self,in_dir,out_dir):
        amfiobj = AmfiDownload()
        amc_pairs = amfiobj.get_amc_codes()
-       for amc_name, amc_code in amc_pairs.items():
+       for amc_name, _amc_code in amc_pairs.items():
            data = self.get_json_from_amc_csvs(amc_name,in_dir)
            self.write_json_data(data, out_dir)
 
