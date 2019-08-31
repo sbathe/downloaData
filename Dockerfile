@@ -1,7 +1,7 @@
 ARG ALPINE_VERSION=3.10
 ARG PYTHON_VERSION=3.7
 
-FROM python:alpine AS base
+FROM python:${PYTHON_VERSION}-alpine${ALPINE_VERSION} AS base
 WORKDIR /var/lib/pandas/
 COPY Pipfile* /var/lib/pandas/
 RUN pip install pipenv==2018.11.26 && \
@@ -26,12 +26,6 @@ RUN addgroup -g 1000 sb && \
 ADD src /downloadData/
 ADD .git /downloadData/.git/
 RUN mkdir -p /downloaData/{amfidata,jsondata}
-#RUN cd /downloadData && pwd && pip install --upgrade pip --user && export PATH=/home/sb/.local/bin:$PATH \
-#    && export PYTHONPATH=/home/sb/.local/lib/python3.7/site-packages:$PYTHONPATH \
-#    && pip install -r amfi/build-requires.txt --user \
-#    && pip install -r amfi/requirements.txt --user \
-#    && python -V && pwd && ls -la && python setup.py install -v --user
-#VOLUME ["/downloadData/amfidata", "/downloadData/jsonData"]
 RUN cd /downloadData && pwd && pip install --upgrade pip && export PATH=/home/sb/.local/bin:$PATH \
     && export PYTHONPATH=/home/sb/.local/lib/python3.7/site-packages:$PYTHONPATH \
     && pip install -r amfi/build-requires.txt \
