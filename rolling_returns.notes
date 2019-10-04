@@ -1,0 +1,21 @@
+import pandas as pd
+import numpy as np
+import pandas_datareader as pdr
+
+
+def total_return(prices):
+    """Retuns the return between the first and last value of the DataFrame.
+
+    Parameters
+    ----------
+    prices : pandas.Series or pandas.DataFrame
+
+    Returns
+    -------
+    total_return : float or pandas.Series
+        Depending on the input passed returns a float or a pandas.Series.
+    """
+    return prices.iloc[-1] / prices.iloc[0] - 1
+
+
+5yr_rolling_return = prices.rolling(window=250*5).apply(total_return, raw=False)
