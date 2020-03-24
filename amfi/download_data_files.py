@@ -16,7 +16,7 @@ class AmfiDownload:
         try:
             r = requests.get(url,timeout=15)
         except requests.exceptions.RequestException as e:
-            logger.debug('Cannot complete request to {0}. The error was:'.format(url))
+            logger.error('Cannot complete request to {0}. The error was:'.format(url))
             logger.debug(e)
             return None
         return r.text
@@ -27,17 +27,19 @@ class AmfiDownload:
         if r:
           soup = bs4.BeautifulSoup(r, 'html.parser')
           NavDownMFName =  soup.find_all("select",id="NavDownMFName")
-          amc_codes = { e.string:e.attrs['value'] for e in NavDownMFName[0].findAll('option') if e.attrs['value'] != ''}
+          amc_codes = { e.string:e.attrs['value'] for e in NavDownMFName[0].findAll('option') if e.attrs['value'] != '' and e.string != 'All'}
         else:
            amc_codes = None
         return amc_codes
 
     def write_file(self,fh,data):
+        #we should send a filename here not a handle
         #Add some validations here
         try:
             fh.write(data)
             fh.close()
         except:
+            logger.error("Failed to write file")
             logger.debug("Unexpected error:{0}".format(sys.exc_info()[0]))
 
     def get_amc_nav_data(self,amc,start_date=None,end_date=None):
